@@ -364,14 +364,14 @@ function loadAnswers(postId) {
               // Populate textarea and reset cursor to the end of text
               answerTextarea.value = e.target.textContent.trim();
               answerTextarea.focus();
-              postAnswerBtn.dataset.editAnswerId = e.target.dataset.answerId;
+              postAnswerBtn.dataset.editAnswerId = e.target.dataset.answerId; // Mark as editing
             } else {
               alert("You can only edit your own answers.");
             }
           });
         });
 
-        // Update or add new answer
+        // Handle updating or posting new answer
         postAnswerBtn.addEventListener("click", () => {
           const editAnswerId = postAnswerBtn.dataset.editAnswerId;
           const updatedContent = answerTextarea.value.trim();
@@ -385,11 +385,25 @@ function loadAnswers(postId) {
             // Update existing answer
             const answerRef = ref(database, `PARSEIT/community/posts/${postId}/answers/${editAnswerId}`);
             update(answerRef, { content: updatedContent }).then(() => {
-              answerTextarea.value = "";
-              delete postAnswerBtn.dataset.editAnswerId;
-              loadAnswers(postId);
+              answerTextarea.value = ""; // Clear the textarea
+              delete postAnswerBtn.dataset.editAnswerId; // Remove the editing state
+              loadAnswers(postId); // Reload the answers
             }).catch((error) => {
               console.error("Error updating answer:", error);
+            });
+          } else {
+            // Add new answer if no editAnswerId is set
+            const newAnswerRef = ref(database, `PARSEIT/community/posts/${postId}/answers/`);
+            const newAnswerId = push(newAnswerRef).key; // Generate a new unique ID for the answer
+            set(ref(database, `PARSEIT/community/posts/${postId}/answers/${newAnswerId}`), {
+              username: currentUsername,
+              content: updatedContent,
+              time: Date.now()
+            }).then(() => {
+              answerTextarea.value = ""; // Clear the textarea
+              loadAnswers(postId); // Reload the answers
+            }).catch((error) => {
+              console.error("Error posting new answer:", error);
             });
           }
         });
@@ -401,6 +415,7 @@ function loadAnswers(postId) {
       console.error("Error loading answers:", error);
     });
 }
+
 
 // Function to load answers for the active post
 // function loadAnswers(postId) {
