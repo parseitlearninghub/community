@@ -233,6 +233,52 @@ document.addEventListener("DOMContentLoaded", function () {
   loadPosts();
 });
 
+function handleAnswerPost(postId) {
+  const postAnswerBtn = document.getElementById("answer_btn");
+  const answerTextarea = document.getElementById("newComment");
+
+  const editAnswerId = postAnswerBtn.dataset.editAnswerId;
+  const updatedContent = answerTextarea.value.trim();
+
+  if (!updatedContent) {
+    alert("Answer content cannot be empty.");
+    return;
+  }
+
+  if (editAnswerId) {
+    // Update existing answer
+    const answerRef = ref(database, `PARSEIT/community/posts/${postId}/answers/${editAnswerId}`);
+    update(answerRef, { content: updatedContent }).then(() => {
+      answerTextarea.value = ""; // Clear the textarea
+      delete postAnswerBtn.dataset.editAnswerId; // Remove the editing state
+      loadAnswers(postId); // Reload the answers
+    }).catch((error) => {
+      console.error("Error updating answer:", error);
+    });
+  } else {
+    // Add new answer
+    const newAnswerRef = ref(database, `PARSEIT/community/posts/${postId}/answers/`);
+    const newAnswerId = push(newAnswerRef).key; // Generate a new unique ID for the answer
+    set(ref(database, `PARSEIT/community/posts/${postId}/answers/${newAnswerId}`), {
+      username: localStorage.getItem("student_username"),
+      content: updatedContent,
+      time: Date.now()
+    }).then(() => {
+      answerTextarea.value = ""; // Clear the textarea
+      loadAnswers(postId); // Reload the answers
+    }).catch((error) => {
+      console.error("Error posting new answer:", error);
+    });
+  }
+}
+
+// Update the post answer button logic
+document.getElementById("answer_btn").addEventListener("click", () => {
+  const postId = localStorage.getItem("active_post_id");
+  handleAnswerPost(postId);
+});
+
+
 function toggleViewMore(feedElement) {
   const viewMoreLink = feedElement.querySelector('.view-more');
   feedElement.classList.toggle('expanded');
@@ -306,7 +352,7 @@ document.getElementById("answer_btn").addEventListener("click", function () {
 
 function addAnswer() {
   const student_id = studentId;
-  const content = document.getElementById("newComment").value;
+  const content = document.getElementById("newComment").value.trim();
 
   if (content.trim() === "") {
     alert("Answer cannot be empty.");
@@ -319,10 +365,6 @@ function addAnswer() {
  document.getElementById("newComment").value = "";
 }
 function loadAnswers(postId) {
-  if (!postId) {
-    console.error("No active post ID found.");
-    return;
-  }
   const currentUsername = localStorage.getItem("student_username");
   const answersRef = ref(database, `PARSEIT/community/posts/${postId}/answers/`);
   
@@ -331,7 +373,6 @@ function loadAnswers(postId) {
       const modalBody = document.querySelector(".answer-modal-body");
       modalBody.innerHTML = ""; // Clear previous answers
       const answerTextarea = document.getElementById("newComment");
-      const postAnswerBtn = document.getElementById("answer_btn");
 
       if (snapshot.exists()) {
         const answers = snapshot.val();
@@ -370,43 +411,6 @@ function loadAnswers(postId) {
             }
           });
         });
-
-        // Handle updating or posting new answer
-        postAnswerBtn.addEventListener("click", () => {
-          const editAnswerId = postAnswerBtn.dataset.editAnswerId;
-          const updatedContent = answerTextarea.value.trim();
-
-          if (!updatedContent) {
-            alert("Answer content cannot be empty.");
-            return;
-          }
-
-          if (editAnswerId) {
-            // Update existing answer
-            const answerRef = ref(database, `PARSEIT/community/posts/${postId}/answers/${editAnswerId}`);
-            update(answerRef, { content: updatedContent }).then(() => {
-              answerTextarea.value = ""; // Clear the textarea
-              delete postAnswerBtn.dataset.editAnswerId; // Remove the editing state
-              loadAnswers(postId); // Reload the answers
-            }).catch((error) => {
-              console.error("Error updating answer:", error);
-            });
-          } else {
-            // Add new answer if no editAnswerId is set
-            const newAnswerRef = ref(database, `PARSEIT/community/posts/${postId}/answers/`);
-            const newAnswerId = push(newAnswerRef).key; // Generate a new unique ID for the answer
-            set(ref(database, `PARSEIT/community/posts/${postId}/answers/${newAnswerId}`), {
-              username: currentUsername,
-              content: updatedContent,
-              time: Date.now()
-            }).then(() => {
-              answerTextarea.value = ""; // Clear the textarea
-              loadAnswers(postId); // Reload the answers
-            }).catch((error) => {
-              console.error("Error posting new answer:", error);
-            });
-          }
-        });
       } else {
         modalBody.innerHTML = "<p>No answers yet. Be the first to answer!</p>";
       }
@@ -415,90 +419,6 @@ function loadAnswers(postId) {
       console.error("Error loading answers:", error);
     });
 }
-
-
-// Function to load answers for the active post
-// function loadAnswers(postId) {
-//   if (!postId) {
-//     console.error("No active post ID found.");
-//     return;
-//   }
-//   const currentUsername = localStorage.getItem("student_username");
-//   const answersRef = ref(database, `PARSEIT/community/posts/${postId}/answers/`);
-//   get(answersRef)
-//     .then((snapshot) => {
-//       const modalBody = document.querySelector(".answer-modal-body");
-//       modalBody.innerHTML = ""; // Clear previous answers
-//       const answerTextarea = document.getElementById("newComment");
-//       const postAnswerBtn = document.getElementById("answer_btn");
-
-//       if (snapshot.exists()) {
-//         const answers = snapshot.val();
-//         Object.keys(answers).forEach((answerId) => {
-//           const answer = answers[answerId];
-//           const formattedTime = timeAgo(answer.time);
-
-//           const answerElement = document.createElement("div");
-//           answerElement.classList.add("answer");
-//           answerElement.innerHTML = `
-//             <div class="answer-header">
-//               <strong>${answer.username}</strong> <small>${formattedTime}</small>
-//             </div>
-//             <div>
-//               <p class="community-answers" data-answer-id="${answerId}" data-username="${answer.username}">
-//                 ${answer.content}
-//               </p>
-//             </div>
-//             <small class="text_reply">Reply</small>
-//           `;
-
-//           // Append to modal body
-//           modalBody.appendChild(answerElement);
-
-//           // Add event listener for community-answers
-//           const communityAnswer = answerElement.querySelector(".community-answers");
-//           communityAnswer.addEventListener("click", (e) => {
-//             const currentUser = currentUsername; // Replace this with logic to get the current user's username
-//             const isUserOwnAnswer = e.target.dataset.username === currentUser;
-
-//             if (isUserOwnAnswer) {
-//               // Populate textarea with the current answer for editing
-//               answerTextarea.value = e.target.textContent;
-//               answerTextarea.focus();
-//               postAnswerBtn.dataset.editAnswerId = e.target.dataset.answerId; // Set answer ID for the update
-//             } else {
-//               alert("You can only edit your own answers.");
-//             }
-//           });
-//         });
-
-//         // Add click listener to the post-answer-btn for editing
-//         postAnswerBtn.addEventListener("click", () => {
-//           const editAnswerId = postAnswerBtn.dataset.editAnswerId;
-//           if (editAnswerId) {
-//             const updatedContent = answerTextarea.value.trim();
-//             if (updatedContent) {
-//               const answerRef = ref(database, `PARSEIT/community/posts/${postId}/answers/${editAnswerId}`);
-//               update(answerRef, { content: updatedContent }).then(() => {
-//                 // Clear textarea and reset button state
-//                 answerTextarea.value = "";
-//                 delete postAnswerBtn.dataset.editAnswerId;
-//                 // Reload answers to reflect the updated content
-//                 loadAnswers(postId);
-//               });
-//             } else {
-//               alert("Answer content cannot be empty.");
-//             }
-//           }
-//         });
-//       } else {
-//         modalBody.innerHTML = "<p>No answers yet. Be the first to answer!</p>";
-//       }
-//     })
-//     .catch((error) => {
-//       console.error("Error loading answers:", error);
-//     });
-// }
 
 
 async function getUsername(student_id) {
