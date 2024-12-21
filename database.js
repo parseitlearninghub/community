@@ -364,7 +364,7 @@ function addAnswer() {
  // Clear the input field after posting the answer
  document.getElementById("newComment").value = "";
 }
-function loadAnswers(postId) {
+function loadAnswers(postId) { 
   const currentUsername = localStorage.getItem("student_username");
   const answersRef = ref(database, `PARSEIT/community/posts/${postId}/answers/`);
   
@@ -386,15 +386,65 @@ function loadAnswers(postId) {
             <div class="answer-header">
               <strong>${answer.username}</strong> <small>${formattedTime}</small>
             </div>
-            <div>
+            <div class="answer-content-container">
               <p class="community-answers" data-answer-id="${answerId}" data-username="${answer.username}">
                 ${answer.content.trim()}
               </p>
+              <small class="text_reply" id="reply-answer" data-answer-id="${answerId}">Reply</small>
             </div>
-            <small class="text_reply">Reply</small>
           `;
 
           modalBody.appendChild(answerElement);
+
+          const replyButton = answerElement.querySelector(".text_reply");
+          replyButton.addEventListener("click", (e) => {
+            const replySection = document.getElementById('replySection');
+            const answerId = e.target.dataset.answerId;
+
+            // Show the full-screen reply section
+            replySection.style.display = 'block';
+            replySection.innerHTML = `
+              <button class="reply-close-btn" id="close_reply_section">
+                <img src="images/close-button.png" alt="Close">
+              </button>
+              <div class="reply-section-header">
+                <h3>Replies to Answer ${answerId}</h3>
+              </div>
+              <div class="reply-content">
+                <textarea class="reply-input" id="replyInput"></textarea>
+                <button class="post-reply-btn" id="submitReplyBtn">
+                  <img src="images/send-comment.png" alt="Send">
+                </button>
+              </div>
+            `;
+
+            // Focus on the reply input
+            document.getElementById('replyInput').focus();
+
+            // Add event listener to the submit button to handle reply submission
+            document.getElementById('submitReplyBtn').addEventListener('click', () => {
+              const replyContent = document.getElementById('replyInput').value.trim();
+
+              if (replyContent === "") {
+                alert("Reply cannot be empty.");
+                return;
+              }
+
+              // Post the reply to Firebase (implement the postReply function as needed)
+              postReply(postId, answerId, replyContent);
+
+              // Clear the input field
+              document.getElementById('replyInput').value = "";
+
+              // Optionally hide the reply section after submitting
+              replySection.style.display = 'none';
+            });
+
+            // Add event listener for closing the reply section
+            document.getElementById('close_reply_section').addEventListener('click', () => {
+              replySection.style.display = 'none'; // Hide the reply section
+            });
+          });
 
           const communityAnswer = answerElement.querySelector(".community-answers");
           communityAnswer.addEventListener("click", (e) => {
@@ -419,6 +469,8 @@ function loadAnswers(postId) {
       console.error("Error loading answers:", error);
     });
 }
+
+
 
 
 async function getUsername(student_id) {

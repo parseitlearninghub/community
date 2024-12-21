@@ -533,6 +533,11 @@ img {
     padding: 0.6rem 0.3rem;
 }
 
+.answer-content-container {
+  position: relative;
+  display: inline-block;
+}
+
 .community-answers {
     font-family: "Inter-Regular";
     padding: 0.5rem;
@@ -547,9 +552,11 @@ img {
 .text_reply {
     font-size: 12px;
     cursor: pointer;
+    display: flex;
+    justify-content: flex-end;
 }
 
-.answers-close-button {
+.answers-close-button, .reply-close-btn {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -565,7 +572,7 @@ img {
     filter: brightness(250%) grayscale(100%); 
 }
 
-.answers-close-button:hover {
+.answers-close-button, .reply-close-btn:hover {
     filter: brightness(300%) saturate(150%) invert(20%) sepia(50%) hue-rotate(-10deg);
 }
 
@@ -748,3 +755,92 @@ img {
 .message_send_btn:hover img {
     transform: scale(1.2); 
 }
+.reply-section {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #ffffff;
+    color: white;
+    display: none; /* Initially hidden */
+    padding: 20px;
+    z-index: 1000; /* Ensure it's above other content */
+    overflow: auto;
+  }
+  
+  .reply-section-header h3 {
+    font-size: 24px;
+  }
+  
+  .reply-content {
+    margin-top: 20px;
+  }
+  
+  .reply-input {
+    width: 100%; 
+    height: auto;   
+    min-height: 50px;
+    padding: 0.5rem;
+    border: 0.1rem solid #b4b2b2;
+    border-radius: 4px;
+    font-size: 1rem;
+    resize: none;
+    box-sizing: border-box;
+    border-radius: 20px;
+  }
+  .reply-input {
+    background-color: transparent; 
+    border: 0.1rem solid #8a8888af;             
+    outline: none;               
+}
+
+.reply-input:focus {
+    background-color: transparent; 
+    border: 0.1rem solid  #727171;             
+    outline: none;               
+}
+
+
+.reply-content {
+    position: fixed; 
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px,
+    rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+    padding: 10px;
+    margin-bottom: 5px;
+    bottom: 0;  
+    left: 0; 
+    width: 100%; 
+}
+
+  #submitReplyBtn {
+    background-color: #fff;
+    color: red;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  
+.post-reply-btn {
+    position: absolute;
+    right: 20px; 
+    top: 20px; 
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 200; 
+    outline: none;
+}
+
+.post-reply-btn img {
+    width: 18px; 
+    height: 18px; 
+    transition: transform 0.2s ease-in-out;
+    filter: invert(23%) sepia(100%) saturate(500%) hue-rotate(-50deg);
+    
+}
+
+/* .post-answer-btn, .message_send_btn:hover img {
+    transform: scale(1.2); 
+} */ */
