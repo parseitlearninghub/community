@@ -85,7 +85,6 @@ function setupToggleEvent(buttonId, sectionId) {
 }
 // - to read
 setupToggleEvent('notification_btn', 'notif_page_section');
-setupToggleEvent('messages_page_btn', 'messages_page_section');
 setupToggleEvent('community_home_btn', 'community_home_section');
 //to get display the username
 const username = localStorage.getItem("student_username");
