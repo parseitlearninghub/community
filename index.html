@@ -7,66 +7,84 @@
     <link rel="stylesheet" href="community.css" />
   </head>
   <body>
- 
     <!-- Feeds Section -->
     <div class="feeds">
       <div class="community_header">
         <div class="header_icons">
           <div class="back_btn">
-            <button id="back_btn" onclick="window.location.href='https://parseitlearninghub.github.io/parsers/'"><img src="images/left-arrow.png" alt=""/></button>
+            <button
+              id="back_btn"
+              onclick="window.location.href='https://parseitlearninghub.github.io/parsers/'"
+            >
+              <img src="images/left-arrow.png" alt="" />
+            </button>
           </div>
-          <div class="commmunity_home" id="community_home_btn">ParseIT Community
+          <div class="commmunity_home" id="community_home_btn">
+            ParseIT Community
           </div>
           <div class="notif_page" id="notification_btn">
-            <img src="images/notification.png" alt=""/>
-          </div>
+            <img src="images/notification.png" alt="" />
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Full-Screen Sections for other features -->
+    <!-- Full-Screen Sections for other features -->
     <div class="section notif_page_section" id="notif_page_section">
       Notifications Section
     </div>
     <div class="subheader">
       <div class="top-profile-pic">
-        <img src="images/profile-pic.jpg" alt="Profile Picture" />
+        <img
+          id="active-profile-pic"
+          src="images/profiles/default_profile.png"
+          alt="Profile Picture"
+        />
       </div>
       <div class="post-query-text" id="postbtn">
-        <div id="question-text">Have a question, <span id="username-placeholder"></span>?</div>
+        <div id="question-text">
+          Have a question, <span id="username-placeholder"></span>?
+        </div>
       </div>
     </div>
 
-      <!-- Container for each post -->
-      <div id="feedContainer">
-      </div>
-    </div>
+    <!-- Container for each post -->
+    <div id="feedContainer"></div>
     <!-- Pop up for posting a query -->
     <div class="query-modal" id="queryModal">
-      <button class="query-close-button" id="close_btn"><img src="images/close-button.png" alt=""></button>
+      <button class="query-close-button" id="close_btn">
+        <img src="images/close-button.png" alt="" />
+      </button>
       <h2>Post Your Query</h2>
-      <textarea class="post-content"
-        id="queryDescription" data-gramm="false"
+      <textarea
+        class="post-content"
+        id="queryDescription"
+        data-gramm="false"
         placeholder="Describe your query in detail"
       ></textarea>
       <div class="modal-footer">
         <button id="post_query_btn">Post Query</button>
-    </div>
+      </div>
     </div>
     <!-- Answers Pop-up/Modal -->
     <div class="answers-modal" id="answersModal">
       <button class="answers-close-button" id="close_answermodal">
-        <img src="images/close-button.png" alt="">
+        <img src="images/close-button.png" alt="" />
       </button>
       <h2>Answers</h2>
-      <div class="answer-modal-body">
+      <div class="answer-modal-body"></div>
+      <div class="answer-content-wrapper">
+        <textarea
+          class="answer-content"
+          id="newComment"
+          data-gramm="false"
+        ></textarea>
+        <button id="answer_btn" class="post-answer-btn">
+          <img src="images/send-comment.png" alt="" />
+        </button>
       </div>
-    <div class="answer-content-wrapper">
-      <textarea class="answer-content" id="newComment" data-gramm="false"></textarea>
-      <button id="answer_btn" class="post-answer-btn"><img src="images/send-comment.png" alt=""></button>
     </div>
-    </div>
-    <div class="reply-section" id="replySection" style="display: none;">
+    <div class="reply-section" id="replySection" style="display: none">
       <div class="reply-section-header">
         <h3>Replies</h3>
       </div>
@@ -77,6 +95,6 @@
       </div>
     </div>
     <div id="overlay"></div>
-    <script defer type="module" src="database.js" ></script>
+    <script defer type="module" src="database.js"></script>
   </body>
 </html>

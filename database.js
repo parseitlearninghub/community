@@ -7,6 +7,7 @@ import {
   update,
   remove,
   set,
+  push
 } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
@@ -29,14 +30,39 @@ const studentId = localStorage.getItem("user-parser");
 const overlay = document.getElementById("overlay");
 const queryModal = document.getElementById("queryModal");
 const answersModal = document.getElementById("answersModal");
-let activeFeed = null; 
+let activeFeed = null;
+
+const profileStudentRef = ref(database, `PARSEIT/administration/students/${studentId}/`);
+get(profileStudentRef).then((profileStudentSnapshot) => {
+  if (profileStudentSnapshot.exists()) {
+    document.getElementById('active-profile-pic').src = `images/profiles/${profileStudentSnapshot.val().profile}`;
+  }
+  else {
+    const profileTeacherRef = ref(database, `PARSEIT/administration/teachers/${studentId}/`);
+    get(profileTeacherRef).then((profileteachersSnapshot) => {
+      if (profileteachersSnapshot.exists()) {
+        if (profileteachersSnapshot.val().profile !== undefined) {
+          document.getElementById('active-profile-pic').src = `images/profiles/${profileStudentSnapshot.val().profile}`;
+        }
+        else {
+          document.getElementById('active-profile-pic').src = `images/profiles/default_profile.png`;
+        }
+
+      }
+      else {
+        document.getElementById('active-profile-pic').src = `images/profiles/default_profile.png`;
+      }
+    });
+  }
+});
+
 
 document.getElementById("community_home_btn").addEventListener("click", function () {
   location.reload();
 });
 
 //executed when clicking the "Have a question?" div
-document.getElementById("postbtn").addEventListener("click", function() {
+document.getElementById("postbtn").addEventListener("click", function () {
   overlay.classList.add("active");
   queryModal.classList.add("active");
   document.getElementById('queryDescription').value = '';
@@ -47,11 +73,11 @@ function openAnswersModal(feedElement, postId) {
   localStorage.setItem("active_post_id", postId);
   overlay.classList.add("active");
   answersModal.classList.add("active");
-  activeFeed = feedElement; 
+  activeFeed = feedElement;
   loadAnswers(postId);
 }
 //to close the answer section
-document.getElementById("close_answermodal").addEventListener("click", function() {
+document.getElementById("close_answermodal").addEventListener("click", function () {
   overlay.classList.remove("active");
   answersModal.classList.remove("active");
   activeFeed = null;
@@ -89,7 +115,7 @@ setupToggleEvent('community_home_btn', 'community_home_section');
 //to get display the username
 const username = localStorage.getItem("student_username");
 if (username) {
-    document.getElementById('username-placeholder').textContent = username;
+  document.getElementById('username-placeholder').textContent = username;
 } else {
   document.getElementById('username-placeholder').textContent = "Parser";
 }
@@ -127,11 +153,11 @@ document.getElementById("post_query_btn").addEventListener("click", function () 
     return;
   }
 
-submitQuery(localStorage.getItem("student_username"), time, description, post_id, student_id);
+  submitQuery(localStorage.getItem("student_username"), time, description, post_id, student_id);
 
   // Clear the input field and close the modal after posting
-  document.getElementById("queryDescription").value = ""; 
-  closeModal(); 
+  document.getElementById("queryDescription").value = "";
+  closeModal();
   loadPosts();
 })
 const time = Date.now(); // Current time as a numeric timestamp
@@ -150,7 +176,7 @@ function submitQuery(username, time, description, post_id, student_id) {
 }
 
 // Function to load posts
-function loadPosts() { 
+function loadPosts() {
   const postsRef = ref(database, `PARSEIT/community/posts/`);
   const currentUsername = localStorage.getItem("student_username");
 
@@ -159,14 +185,38 @@ function loadPosts() {
       if (snapshot.exists()) {
         const posts = snapshot.val();
         feedContainer.innerHTML = ""; // Clear the container before loading new posts
+        Object.keys(posts).forEach(async (postId) => {
 
-        Object.keys(posts).forEach((postId) => {
           const post = posts[postId];
           const menuId = `menu-${postId}`;
           const editId = `edit-${postId}`;
           const reportId = `report-${postId}`;
           const answerId = `answer-${postId}`;
+          //FOR PROFILE PICTURE
+          let currentProfile = 'default_profile.png'
+          const profileStudentRef = ref(database, `PARSEIT/administration/students/${snapshot.val()[postId].student_id}/`);
+          await get(profileStudentRef).then(async (profileStudentSnapshot) => {
+            if (profileStudentSnapshot.exists()) {
+              currentProfile = profileStudentSnapshot.val().profile;
+            }
+            else {
+              const profileTeacherRef = ref(database, `PARSEIT/administration/teachers/${snapshot.val()[postId].student_id}/`);
+              await get(profileTeacherRef).then((profileteachersSnapshot) => {
+                if (profileteachersSnapshot.exists()) {
+                  if (profileteachersSnapshot.val().profile !== undefined) {
+                    currentProfile = profileteachersSnapshot.val().profile;
+                  }
+                  else {
+                    currentProfile = 'default_profile.png';
+                  }
 
+                }
+                else {
+                  currentProfile = 'default_profile.png';
+                }
+              });
+            }
+          });
           // Get the number of answers (comments) for the post
           const answersCount = post.answers ? Object.keys(post.answers).length : 0;
           const answerText = answersCount === 0 ? "Answer" : `${answersCount} Answer${answersCount > 1 ? "s" : ""}`;
@@ -177,7 +227,7 @@ function loadPosts() {
           postElement.innerHTML = `
             <div class="user">
                 <div class="profile-pic">
-                    <img src="images/profile-pic.jpg" alt="User Picture">
+                    <img src="images/profiles/${currentProfile}" alt="User Picture">
                 </div>
                 <div class="text">
                     <strong class="username">${post.username}</strong><br>
@@ -186,10 +236,10 @@ function loadPosts() {
                 <div class="menu-icon" id="${menuId}">
                     &#8942; 
                     <div class="menu-options">
-                        ${post.username === currentUsername ? 
-                            `<div class="menu-item" id="${editId}">Edit</div>` 
-                            : 
-                            `<div class="menu-item" id="${reportId}">Report</div>`}
+                        ${post.username === currentUsername ?
+              `<div class="menu-item" id="${editId}">Edit</div>`
+              :
+              `<div class="menu-item" id="${reportId}">Report</div>`}
                     </div>
                 </div>
             </div>
@@ -334,14 +384,14 @@ function postComment(student_id, username, content) {
     username: username,
     time: Number(getCurrentTime()),
   })
-  .then(() => {
-    console.log("Answer posted successfully");
-    loadAnswers(active_post);  // Reload the answers for the active post after posting a comment
-  })
-  .catch((error) => {
-    console.error("Error posting answer:", error);
-    alert("Failed to post answer. Please try again.");
-  });
+    .then(() => {
+      console.log("Answer posted successfully");
+      loadAnswers(active_post);  // Reload the answers for the active post after posting a comment
+    })
+    .catch((error) => {
+      console.error("Error posting answer:", error);
+      alert("Failed to post answer. Please try again.");
+    });
 }
 
 // Event listener for adding a comment (answer)
@@ -357,16 +407,16 @@ function addAnswer() {
     alert("Answer cannot be empty.");
     return;
   }
- // Post the answer to Firebase
- postComment(student_id, localStorage.getItem("student_username"), content);
+  // Post the answer to Firebase
+  postComment(student_id, localStorage.getItem("student_username"), content);
 
- // Clear the input field after posting the answer
- document.getElementById("newComment").value = "";
+  // Clear the input field after posting the answer
+  document.getElementById("newComment").value = "";
 }
-function loadAnswers(postId) { 
+function loadAnswers(postId) {
   const currentUsername = localStorage.getItem("student_username");
   const answersRef = ref(database, `PARSEIT/community/posts/${postId}/answers/`);
-  
+
   get(answersRef)
     .then((snapshot) => {
       const modalBody = document.querySelector(".answer-modal-body");
@@ -497,7 +547,7 @@ function timeAgo(timestamp) {
   // Ensure the timestamp is a valid number
   const timestampNumber = Number(timestamp);
   if (isNaN(timestampNumber)) {
-      return "Invalid time";
+    return "Invalid time";
   }
 
   const now = Date.now(); // Current time in milliseconds
@@ -551,26 +601,26 @@ function toggleMenu(postElement) {
   // Find the menu associated with the current post
   const menu = postElement.querySelector('.menu-options');
   if (menu.classList.contains('show')) {
-      menu.classList.remove('show');
-      menu.style.display = 'none';
+    menu.classList.remove('show');
+    menu.style.display = 'none';
   } else {
-      menu.classList.add('show');
-      menu.style.display = 'flex'; // Show the menu for the clicked post
+    menu.classList.add('show');
+    menu.style.display = 'flex'; // Show the menu for the clicked post
 
   }
 
   // Close all other menus
   const allMenus = document.querySelectorAll('.menu-options');
   allMenus.forEach((m) => {
-      if (m !== menu) {
-          m.classList.remove('show');
-          m.style.display = 'none';
-      }
+    if (m !== menu) {
+      m.classList.remove('show');
+      m.style.display = 'none';
+    }
   });
 }
 
 // Close the menu when clicking outside of any menu icon
-document.addEventListener('click', function(event) {
+document.addEventListener('click', function (event) {
   const allMenuIcons = document.querySelectorAll('.menu-icon');
   const allMenuOptions = document.querySelectorAll('.menu-options');
 
@@ -626,15 +676,15 @@ function editPost(postId) {
           if (updatedDescription === "") {
             // Add the red border and shake class
             descriptionField.classList.add("error");
-        
+
             // Remove the shake animation after it's done to allow retriggering
             setTimeout(() => {
-                descriptionField.classList.remove("shake");
+              descriptionField.classList.remove("shake");
             }, 500);
-        
+
             descriptionField.classList.add("shake");
             return;
-        }
+          }
 
           // Update the post in Firebase
           update(ref(database, `PARSEIT/community/posts/${postId}`), {
@@ -673,15 +723,15 @@ function editPost(postId) {
 // Report Post Functionality
 function reportPost(postId) {
   if (confirm("Are you sure you want to report this post?")) {
-      update(ref(database, `PARSEIT/community/posts/${postId}`), {
-          reported: true, // Add a 'reported' flag
+    update(ref(database, `PARSEIT/community/posts/${postId}`), {
+      reported: true, // Add a 'reported' flag
+    })
+      .then(() => {
+        alert("Post reported successfully.");
       })
-          .then(() => {
-              alert("Post reported successfully.");
-          })
-          .catch((error) => {
-              console.error("Error reporting post:", error);
-              alert("Failed to report the post.");
-          });
+      .catch((error) => {
+        console.error("Error reporting post:", error);
+        alert("Failed to report the post.");
+      });
   }
 }
