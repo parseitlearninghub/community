@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Community</title>
+    <link rel="stylesheet" href="community.css" />
+  </head>
+  <body>
+    <!-- Answers Pop-up/Modal -->
+    <div class="answers-modal" id="answersModal">
+      <button class="answers-close-button" id="close_answermodal">
+        <img src="images/close-button.png" alt="" />
+      </button>
+      <h2>Answers</h2>
+      <div class="answer-modal-body"></div>
+      <div class="answer-content-wrapper">
+        <textarea
+          class="answer-content"
+          id="newComment"
+          data-gramm="false"
+        ></textarea>
+        <button id="answer_btn" class="post-answer-btn">
+          <img src="images/send-comment.png" alt="" />
+        </button>
+      </div>
+    </div>
+    <div class="reply-section" id="replySection" style="display: none">
+      <div class="reply-section-header">
+        <h3>Replies</h3>
+      </div>
+      <div class="reply-content">
+        <!-- Reply input and submission button -->
+        <textarea id="replyInput" placeholder="Type your reply..."></textarea>
+        <button id="submitReplyBtn">Submit Reply</button>
+      </div>
+    </div>
+    <div id="overlay"></div>
+    <script defer type="module" src="answers.js"></script>
+  </body>
+</html>
