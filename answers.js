@@ -59,25 +59,41 @@ document.getElementById("close_answermodal").addEventListener("click", function 
 });
 
 // The function to post a comment (answer) to the correct post in Firebase
-// Define getCurrentTime before postComment
-function getCurrentTime() {
-    return Date.now(); // Numeric timestamp for storage
-  }
-  
-  // The function to post a comment (answer) to the correct post in Firebase
-  function postComment(student_id, username, content) {
-    const answer_id = Date.now().toString();
-    const active_post = localStorage.getItem("active_post_id");
-  
-    if (!active_post) {
-      alert("No active post found.");
+// Function to handle the "Send Answer" button click event
+document.getElementById("answer_btn").addEventListener("click", function () {
+    const student_id = localStorage.getItem("user-parser"); // Ensure you're getting the correct student ID
+    const content = document.getElementById("newComment").value.trim(); // Get the content of the new answer
+    
+    if (content.trim() === "") {
+      alert("Answer cannot be empty.");
       return;
     }
   
-    console.log("Active post ID:", active_post);
+    // Get the postId from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('postId');
+    
+    // Ensure the postId is available
+    if (!postId) {
+      console.error("No postId in URL.");
+      return;
+    }
+  
+    // Call the postAnswer function to send the answer
+    postAnswer(student_id, localStorage.getItem("student_username"), content, postId);
+  
+    // Clear the input field after posting the answer
+    document.getElementById("newComment").value = "";
+  });
+  
+  // The function to post a comment (answer) to the correct post in Firebase
+  function postAnswer(student_id, username, content, postId) {
+    const answer_id = Date.now().toString();
+  
+    console.log("Active post ID:", postId);
   
     // Adding the answer to the correct post's answers
-    update(ref(database, `PARSEIT/community/posts/${active_post}/answers/${answer_id}`), {
+    update(ref(database, `PARSEIT/community/posts/${postId}/answers/${answer_id}`), {
       student_id: student_id,
       content: content,
       username: username,
@@ -85,13 +101,19 @@ function getCurrentTime() {
     })
       .then(() => {
         console.log("Answer posted successfully");
-        loadAnswers(active_post);  // Reload the answers for the active post
+        loadAnswers(postId);  // Reload the answers for the active post
       })
       .catch((error) => {
         console.error("Error posting answer:", error);
         alert("Failed to post answer. Please try again.");
       });
   }
+  
+  // Define getCurrentTime before postAnswer
+  function getCurrentTime() {
+    return Date.now(); // Numeric timestamp for storage
+  }
+  
   
   // Function to load answers for the specific post
   function loadAnswers(postId) {
