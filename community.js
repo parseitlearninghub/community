@@ -156,6 +156,47 @@ function submitQuery(username, time, description, post_id, student_id) {
   });
 }
 
+// Move openAnswersModal outside the DOMContentLoaded listener
+function openAnswersModal(feedElement) {
+  const overlay = document.getElementById('overlay');  // Make sure this is inside the function
+  const answersModal = document.getElementById('answersModal');  // Make sure this is inside the function
+  console.log(overlay);  // Check if overlay is found
+  console.log(answersModal);
+  if (!overlay || !answersModal) {
+    console.error("Overlay or Answers Modal element not found in the DOM.");
+    return;
+  }
+
+  const postIdFromUrl = feedElement.dataset.postId;  // Assuming the post ID is stored in `data-post-id`
+  localStorage.setItem("active_post_id", postIdFromUrl);
+  overlay.classList.add("active");
+  answersModal.classList.add("active");
+  activeFeed = feedElement;
+  loadAnswers(postIdFromUrl); // Load answers using the postId from the URL
+}
+
+// Define other functions here if necessary
+
+// document.addEventListener("DOMContentLoaded", function() {
+//   // Now openAnswersModal is available here and in the global scope
+//   const overlay = document.getElementById('overlay');
+//   const answersModal = document.getElementById('answersModal');
+//   const closeAnswerModalButton = document.getElementById('close_answermodal');
+
+//   // Handle the closing of the modal
+//   if (closeAnswerModalButton) {
+//     closeAnswerModalButton.addEventListener('click', function() {
+//       if (overlay && answersModal) {
+//         overlay.classList.remove('active');
+//         answersModal.classList.remove('active');
+//       }
+//     });
+//   }
+
+//   // Make sure loadPosts is also triggered after DOMContentLoaded
+//   loadPosts();
+// });
+
 // Function to load posts
 async function loadPosts() {
   const postsRef = ref(database, `PARSEIT/community/posts/`);
@@ -198,31 +239,32 @@ async function loadPosts() {
 
         const postElement = document.createElement("div");
         postElement.classList.add("feed");
+        postElement.dataset.postId = postId;  // Add the postId as a data attribute
 
         postElement.innerHTML = `
           <div class="user">
-              <div class="profile-pic">
-                  <img src="images/profiles/${currentProfile}" alt="User Picture">
+            <div class="profile-pic">
+              <img src="images/profiles/${currentProfile}" alt="User Picture">
+            </div>
+            <div class="text">
+              <strong class="username">${post.username}</strong><br>
+              <small class="time-posted">${formatTime(post.time)}</small>
+            </div>
+            <div class="menu-icon" id="${menuId}">
+              &#8942; 
+              <div class="menu-options">
+                ${post.username === currentUsername ? 
+                  `<div class="menu-item" id="${editId}">Edit</div>` : 
+                  `<div class="menu-item" id="${reportId}">Report</div>`}
               </div>
-              <div class="text">
-                  <strong class="username">${post.username}</strong><br>
-                  <small class="time-posted">${formatTime(post.time)}</small>
-              </div>
-              <div class="menu-icon" id="${menuId}">
-                  &#8942; 
-                  <div class="menu-options">
-                      ${post.username === currentUsername ? 
-                        `<div class="menu-item" id="${editId}">Edit</div>` : 
-                        `<div class="menu-item" id="${reportId}">Report</div>`}
-                  </div>
-              </div>
+            </div>
           </div>
           <div class="post">
-              <p>${post.description}</p>
-              <span class="view-more">View More</span>
+            <p>${post.description}</p>
+            <span class="view-more">View More</span>
           </div>
           <div class="feed-footer">
-              <small class="view-comments" id="${answerId}">${answerText}</small>
+            <small class="view-comments" id="${answerId}">${answerText}</small>
           </div>
           <div class="comments"></div> <!-- Comments container -->
         `;
@@ -238,11 +280,10 @@ async function loadPosts() {
           document.getElementById(reportId).addEventListener("click", () => reportPost(postId));
         }
 
+        // Add event listener to open the modal on "Answer"
         document.getElementById(answerId).addEventListener("click", () => {
-          // Redirect to answers.html with the postId in the URL
-          window.location.href = `answers.html?postId=${postId}`;
+          window.location.href = `answers.html?postId={postId}`;
         });
-
       }
 
       checkLongContent(); // Check if any post content is long after loading the posts

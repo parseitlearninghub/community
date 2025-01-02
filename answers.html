@@ -7,7 +7,31 @@
     <link rel="stylesheet" href="community.css" />
   </head>
   <body>
-    <!-- Answers Pop-up/Modal -->
+    <div class="feeds">
+        <div class="community_header">
+          <div class="header_icons">
+            <div class="back_btn">
+              <button
+                id="back_btn"
+                onclick="window.location.href='https://parseitlearninghub.github.io/parsers/'"
+              >
+                <img src="images/left-arrow.png" alt="" />
+              </button>
+            </div>
+            <div class="commmunity_home" id="community_home_btn">
+              ParseIT Community
+            </div>
+            <div class="notif_page" id="notification_btn">
+              <img src="images/notification.png" alt="" />
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Full-Screen Sections for other features -->
+      <div class="section notif_page_section" id="notif_page_section">
+        Notifications Section
+      </div>
     <div class="answers-modal" id="answersModal">
       <button class="answers-close-button" id="close_answermodal">
         <img src="images/close-button.png" alt="" />
@@ -36,6 +60,7 @@
       </div>
     </div>
     <div id="overlay"></div>
+    <script defer type="module" src="community.js"></script>
     <script defer type="module" src="answers.js"></script>
   </body>
 </html>
