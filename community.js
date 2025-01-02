@@ -268,7 +268,7 @@ async function loadPosts() {
           <div class="comments"></div> <!-- Comments container -->
         `;
 
-        feedContainer.insertBefore(postElement, feedContainer.firstChild);
+        feedContainer.prepend(postElement)
 
         document.getElementById(menuId).addEventListener("click", () => toggleMenu(postElement));
 
@@ -281,7 +281,7 @@ async function loadPosts() {
 
         // Add event listener to open the modal on "Answer"
         document.getElementById(answerId).addEventListener("click", () => {
-          window.location.href = `answers.html?postId={postId}`;
+          window.location.href = `answers.html?postId=${postId}`;
         });
       }
 

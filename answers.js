@@ -53,102 +53,50 @@ function openAnswersModal(postId) {
     }
   }
   
-  
-
 // Close modal event
 document.getElementById("close_answermodal").addEventListener("click", function () {
     window.history.back();
 });
 
-// function handleAnswerPost(postId) {
-//   const postAnswerBtn = document.getElementById("answer_btn");
-//   const answerTextarea = document.getElementById("newComment");
-
-//   const editAnswerId = postAnswerBtn.dataset.editAnswerId;
-//   const updatedContent = answerTextarea.value.trim();
-
-//   if (!updatedContent) {
-//     alert("Answer content cannot be empty.");
-//     return;
-//   }
-
-//   if (editAnswerId) {
-//     // Update existing answer
-//     const answerRef = ref(database, `PARSEIT/community/posts/${postId}/answers/${editAnswerId}`);
-//     update(answerRef, { content: updatedContent }).then(() => {
-//       answerTextarea.value = ""; // Clear the textarea
-//       delete postAnswerBtn.dataset.editAnswerId; // Remove the editing state
-//       loadAnswers(postId); // Reload the answers
-//     }).catch((error) => {
-//       console.error("Error updating answer:", error);
-//     });
-//   } else {
-//     // Add new answer
-//     const newAnswerRef = ref(database, `PARSEIT/community/posts/${postId}/answers/`);
-//     const newAnswerId = push(newAnswerRef).key; // Generate a new unique ID for the answer
-//     set(ref(database, `PARSEIT/community/posts/${postId}/answers/${newAnswerId}`), {
-//       username: localStorage.getItem("student_username"),
-//       content: updatedContent,
-//       time: Date.now()
-//     }).then(() => {
-//       answerTextarea.value = ""; // Clear the textarea
-//       loadAnswers(postId); // Reload the answers
-//     }).catch((error) => {
-//       console.error("Error posting new answer:", error);
-//     });
-//   }
-// }
-
 // The function to post a comment (answer) to the correct post in Firebase
-function postComment(student_id, username, content) {
-  const answer_id = Date.now().toString();
-  const active_post = localStorage.getItem("active_post_id");
-
-  if (!active_post) {
-    alert("No active post found.");
-    return;
+// Define getCurrentTime before postComment
+function getCurrentTime() {
+    return Date.now(); // Numeric timestamp for storage
   }
-
-  // Adding the answer to the correct post's answers
-  update(ref(database, `PARSEIT/community/posts/${active_post}/answers/${answer_id}`), {
-    student_id: student_id,
-    content: content,
-    username: username,
-    time: Number(getCurrentTime()),
-  })
-    .then(() => {
-      console.log("Answer posted successfully");
-      loadAnswers(active_post);  // Reload the answers for the active post after posting a comment
+  
+  // The function to post a comment (answer) to the correct post in Firebase
+  function postComment(student_id, username, content) {
+    const answer_id = Date.now().toString();
+    const active_post = localStorage.getItem("active_post_id");
+  
+    if (!active_post) {
+      alert("No active post found.");
+      return;
+    }
+  
+    console.log("Active post ID:", active_post);
+  
+    // Adding the answer to the correct post's answers
+    update(ref(database, `PARSEIT/community/posts/${active_post}/answers/${answer_id}`), {
+      student_id: student_id,
+      content: content,
+      username: username,
+      time: Number(getCurrentTime()),
     })
-    .catch((error) => {
-      console.error("Error posting answer:", error);
-      alert("Failed to post answer. Please try again.");
-    });
-}
-
-// Event listener for adding a comment (answer)
-document.getElementById("answer_btn").addEventListener("click", function () {
-  addAnswer();
-});
-
-function addAnswer() {
-  const student_id = studentId;
-  const content = document.getElementById("newComment").value.trim();
-
-  if (content.trim() === "") {
-    alert("Answer cannot be empty.");
-    return;
+      .then(() => {
+        console.log("Answer posted successfully");
+        loadAnswers(active_post);  // Reload the answers for the active post
+      })
+      .catch((error) => {
+        console.error("Error posting answer:", error);
+        alert("Failed to post answer. Please try again.");
+      });
   }
-  // Post the answer to Firebase
-  postComment(student_id, localStorage.getItem("student_username"), content);
-
-  // Clear the input field after posting the answer
-  document.getElementById("newComment").value = "";
-}
-
-
-function loadAnswers(postId) {
-    const currentUsername = localStorage.getItem("student_username");
+  
+  // Function to load answers for the specific post
+  function loadAnswers(postId) {
+    console.log("Post ID:", postId);
+    console.log("Loading answers for post ID:", postId);
     const answersRef = ref(database, `PARSEIT/community/posts/${postId}/answers/`);
   
     get(answersRef)
@@ -161,7 +109,6 @@ function loadAnswers(postId) {
           Object.keys(answers).forEach((answerId) => {
             const answer = answers[answerId];
             const formattedTime = timeAgo(answer.time);
-  
             const answerElement = document.createElement("div");
             answerElement.classList.add("answer");
             answerElement.innerHTML = `
@@ -175,7 +122,6 @@ function loadAnswers(postId) {
                 <small class="text_reply" id="reply-answer" data-answer-id="${answerId}">Reply</small>
               </div>
             `;
-  
             modalBody.appendChild(answerElement);
           });
         } else {
@@ -207,8 +153,6 @@ async function getUsername(student_id) {
       }
     });
   }
-
-
 
 // time ago function for answers
 function timeAgo(timestamp) {
