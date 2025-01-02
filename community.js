@@ -26,10 +26,9 @@ const database = getDatabase(app);
 const dbRef = ref(database);
 
 const studentId = localStorage.getItem("user-parser");
-const overlay = document.getElementById("overlay");
+const overlay = document.getElementById("query-overlay");
 const queryModal = document.getElementById("queryModal");
 //let activeFeed = null;
-
 const profileStudentRef = ref(database, `PARSEIT/administration/students/${studentId}/`);
 get(profileStudentRef).then((profileStudentSnapshot) => {
   if (profileStudentSnapshot.exists()) {
