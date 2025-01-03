@@ -184,14 +184,15 @@ img {
 }
 
 .notification_div{
-  background-color: #e2e2e2;
+  background-color: #f2ebeb;
   color: #000000;
   display: flex;
   width: 100%;
   padding: 4px;
   margin: 0.5rem;
   height: 60px;
-  font-size: 16px;
+  font-size: 14px;
+  border-radius: 8px;
 }
 
 .notif-time {
