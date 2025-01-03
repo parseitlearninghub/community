@@ -104,7 +104,7 @@ img {
 .back_btn img {
   width: 18px;
   height: 18px;
-  left: ;
+  /* left: ; */
 }
 
 .header_icons {
@@ -149,7 +149,7 @@ img {
 
 .commmunity_home {
   font-family: "Inter-Bold";
-  font-size: 18px;
+  font-size: 20px;
   color: #000000;
   margin-left: -15px;
 }
