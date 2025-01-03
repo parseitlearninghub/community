@@ -53,7 +53,6 @@ get(profileStudentRef).then((profileStudentSnapshot) => {
   }
 });
 
-
 document.getElementById("community_home_btn").addEventListener("click", function () {
   location.reload();
 });
@@ -155,47 +154,6 @@ function submitQuery(username, time, description, post_id, student_id) {
   });
 }
 
-// Move openAnswersModal outside the DOMContentLoaded listener
-function openAnswersModal(feedElement) {
-  const overlay = document.getElementById('overlay');  // Make sure this is inside the function
-  const answersModal = document.getElementById('answersModal');  // Make sure this is inside the function
-  console.log(overlay);  // Check if overlay is found
-  console.log(answersModal);
-  if (!overlay || !answersModal) {
-    console.error("Overlay or Answers Modal element not found in the DOM.");
-    return;
-  }
-
-  const postIdFromUrl = feedElement.dataset.postId;  // Assuming the post ID is stored in `data-post-id`
-  localStorage.setItem("active_post_id", postIdFromUrl);
-  overlay.classList.add("active");
-  answersModal.classList.add("active");
-  activeFeed = feedElement;
-  loadAnswers(postIdFromUrl); // Load answers using the postId from the URL
-}
-
-// Define other functions here if necessary
-
-// document.addEventListener("DOMContentLoaded", function() {
-//   // Now openAnswersModal is available here and in the global scope
-//   const overlay = document.getElementById('overlay');
-//   const answersModal = document.getElementById('answersModal');
-//   const closeAnswerModalButton = document.getElementById('close_answermodal');
-
-//   // Handle the closing of the modal
-//   if (closeAnswerModalButton) {
-//     closeAnswerModalButton.addEventListener('click', function() {
-//       if (overlay && answersModal) {
-//         overlay.classList.remove('active');
-//         answersModal.classList.remove('active');
-//       }
-//     });
-//   }
-
-//   // Make sure loadPosts is also triggered after DOMContentLoaded
-//   loadPosts();
-// });
-
 // Function to load posts
 async function loadPosts() {
   const postsRef = ref(database, `PARSEIT/community/posts/`);
@@ -207,9 +165,9 @@ async function loadPosts() {
       const posts = snapshot.val();
       feedContainer.innerHTML = ""; // Clear the container before loading new posts
 
-      // Use for...of to handle async/await properly
-      for (const postId of Object.keys(posts)) {
-        const post = posts[postId];
+      // Convert posts object to an array, reverse it, and iterate
+      const postArray = Object.entries(posts).reverse();
+      for (const [postId, post] of postArray) {
         const menuId = `menu-${postId}`;
         const editId = `edit-${postId}`;
         const reportId = `report-${postId}`;
@@ -268,7 +226,7 @@ async function loadPosts() {
           <div class="comments"></div> <!-- Comments container -->
         `;
 
-        feedContainer.prepend(postElement)
+        feedContainer.appendChild(postElement); // Add post to feed container
 
         document.getElementById(menuId).addEventListener("click", () => toggleMenu(postElement));
 
@@ -293,6 +251,7 @@ async function loadPosts() {
     alert("Error loading posts:", error);
   }
 }
+
 
 
 document.addEventListener("DOMContentLoaded", function () {
