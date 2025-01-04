@@ -369,6 +369,12 @@ function editPost(postId) {
   const descriptionField = document.getElementById("queryDescription");
   const postButton = document.getElementById("post_query_btn");
 
+  // Check if all required elements are present
+  if (!modal || !overlay || !descriptionField || !postButton) {
+    console.error("Required modal elements are missing from the DOM.");
+    return;
+  }
+
   // Fetch the current post details
   get(ref(database, `PARSEIT/community/posts/${postId}`))
     .then((snapshot) => {
@@ -382,6 +388,11 @@ function editPost(postId) {
         postButton.textContent = "Done Edit";
         postButton.replaceWith(postButton.cloneNode(true)); // Remove existing listeners
         const newPostButton = document.getElementById("post_query_btn");
+
+        if (!newPostButton) {
+          console.error("The new post button was not recreated correctly.");
+          return;
+        }
 
         // Add a new event listener for updating the post
         newPostButton.addEventListener("click", function handleEdit() {
@@ -414,7 +425,6 @@ function editPost(postId) {
             });
 
           // Restore the original button state after editing
-          // newPostButton.textContent = "Post Query";
           newPostButton.replaceWith(newPostButton.cloneNode(true)); // Remove edit listener
         });
 
@@ -432,6 +442,7 @@ function editPost(postId) {
       console.error("Error fetching post:", error);
     });
 }
+
 
 // Report Post Functionality
 function reportPost(postId) {
