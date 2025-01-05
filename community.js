@@ -211,7 +211,8 @@ async function loadPosts() {
               &#8942; 
               <div class="menu-options">
                 ${post.username === currentUsername ? 
-                  `<div class="menu-item" id="${editId}">Edit</div>` : 
+                  `<div class="menu-item" id="${editId}">
+                  <img class="" src="images/edit_icon.png" alt="">Edit</div>` : 
                   `<div class="menu-item" id="${reportId}">Report</div>`}
               </div>
             </div>
