@@ -141,7 +141,6 @@ document.getElementById("answer_btn").addEventListener("click", function () {
                 <p class="community-answers" data-answer-id="${answerId}" data-username="${answer.username}">
                   ${answer.content.trim()}
                 </p>
-                // <small class="text_reply" id="reply-answer" data-answer-id="${answerId}">Reply</small>
               </div>
             `;
             modalBody.appendChild(answerElement);
