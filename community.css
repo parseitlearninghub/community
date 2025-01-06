@@ -579,6 +579,9 @@ img {
 small {
   padding: 0.6rem 0.3rem;
 }
+.answer-header small {
+  font-size: 8px;
+}
 
 small {
   padding: 0;
@@ -593,12 +596,13 @@ small {
 .community-answers {
   font-family: "Inter-Regular";
   padding: 0.5rem;
-  background-color: #92929251;
+  background-color: #f0f0f0;
   border-radius: 10px;
   min-width: fit-content;
   width: auto;
   display: inline-block;
   margin-top: 4px;
+  font-size: 12px;
 }
 
 .text_reply {
