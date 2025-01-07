@@ -96,7 +96,8 @@ async function displayNotification() {
 
           notificationDiv.addEventListener('click', () => {
             // Redirect to the answer modal with the postId or relevant identifier
-            window.location.href = `answers.html?postId=${notification.postId}`; 
+            console.log("Redirecting to:", `answers.html?postId=${notification.post_id}`);
+            window.location.href = `answers.html?postId=${notification.post_id}`; 
           });
 
           // Append to notifications wrapper
