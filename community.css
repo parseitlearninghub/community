@@ -195,6 +195,23 @@ img {
   border-radius: 8px;
 }
 
+.notification_div.unread {
+  background-color: #ffdede; /* Light red background for unread notifications */
+  font-weight: bold; /* Emphasize unread notifications */
+}
+
+.notification_div.read {
+  background-color: #f2ebeb; /* Default background color for read notifications */
+  font-weight: normal;
+}
+
+.notifications_wrapper .empty-message {
+  text-align: center;
+  color: #888888;
+  font-style: italic;
+  margin-top: 2rem;
+}
+
 .notif-time {
   color: #eb3434;
   font-size: 10px;

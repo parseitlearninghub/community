@@ -92,18 +92,65 @@ function setupToggleEvent(buttonId, sectionId) {
 setupToggleEvent('notification_btn', 'notif_page_section');
 setupToggleEvent('community_home_btn', 'community_home_section');
 
-async function displayNotification () {
-  const postsRef = ref(database, `PARSEIT/community/notifications/`);
+async function displayNotification() {
+  const notificationsRef = ref(database, `PARSEIT/community/notifications/`);
+  const notificationsWrapper = document.querySelector('.notifications_wrapper');
+  console.log("Displaying notifications...");
+  // Clear any existing notifications
+  notificationsWrapper.innerHTML = '';
 
-  await get(postsRef).then((snapshot) => {
+  try {
+    const snapshot = await get(notificationsRef);
+
     if (snapshot.exists()) {
-      const notification = snapshot.val();
-      Object.keys(notification).forEach((notificationsId) => {
-        console.log(notificationsId);
-      })
+      const notifications = snapshot.val();
+
+      // Iterate through the notifications
+      Object.keys(notifications).forEach((notificationId) => {
+        const notification = notifications[notificationId];
+        const { message, timestamp, read } = notification;
+
+        // Format the timestamp into a human-readable string
+        const timeAgo = getTimeAgo(timestamp);
+
+        // Create the notification HTML dynamically
+        const notificationDiv = document.createElement('div');
+        notificationDiv.classList.add('notification_div');
+        notificationDiv.classList.add(read ? 'read' : 'unread'); // Add class based on the read state
+
+        notificationDiv.innerHTML = `
+          ${message}
+          <span class="notif-time">${timeAgo}</span>
+        `;
+
+        notificationsWrapper.appendChild(notificationDiv);
+      });
+    } else {
+      // Display a message when there are no notifications
+      notificationsWrapper.innerHTML = '<div class="empty-message">No notifications found.</div>';
     }
-  })
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    notificationsWrapper.innerHTML = '<div class="empty-message">Error loading notifications.</div>';
+  }
 }
+
+// Helper function to calculate "time ago"
+function getTimeAgo(timestamp) {
+  const now = Date.now();
+  const diff = now - timestamp;
+
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+
+  if (days > 0) return `${days}d ago`;
+  if (hours > 0) return `${hours}hrs ago`;
+  if (minutes > 0) return `${minutes}min ago`;
+  return `${seconds}s ago`;
+}
+
 //to get display the username
 const username = localStorage.getItem("student_username");
 if (username) {
