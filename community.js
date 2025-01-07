@@ -38,13 +38,7 @@ get(profileStudentRef).then((profileStudentSnapshot) => {
     const profileTeacherRef = ref(database, `PARSEIT/administration/teachers/${studentId}/`);
     get(profileTeacherRef).then((profileteachersSnapshot) => {
       if (profileteachersSnapshot.exists()) {
-        if (profileteachersSnapshot.val().profile !== undefined) {
-          document.getElementById('active-profile-pic').src = `images/profiles/${profileStudentSnapshot.val().profile}`;
-        }
-        else {
-          document.getElementById('active-profile-pic').src = `images/profiles/default_profile.png`;
-        }
-
+        document.getElementById('active-profile-pic').src = `images/profiles/${profileStudentSnapshot.val().profile}`;
       }
       else {
         document.getElementById('active-profile-pic').src = `images/profiles/default_profile.png`;
