@@ -121,6 +121,30 @@ img {
 .header_icons .active {
   border-bottom: 3px solid rgb(106, 98, 98);
 }
+.notif_page {
+  position: relative;
+}
+
+.notification_badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background-color: red;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  visibility: hidden; /* Hidden by default */
+}
+
+.notification_badge.show {
+  visibility: visible; /* Show the badge when there's a count */
+}
 
 .notif_page img {
   width: 22px;

@@ -113,6 +113,50 @@ async function displayNotification() {
   });
 }
 
+const notificationCount = document.getElementById('notification_count');
+
+// Function to update notification count
+function updateNotificationCount(count) {
+  if (count > 0) {
+    notificationCount.textContent = count; // Set the count number
+    notificationCount.classList.add('show'); // Show the badge
+  } else {
+    notificationCount.classList.remove('show'); // Hide the badge if no notifications
+  }
+}
+
+// Example: Fetch unread notifications from the database
+async function fetchUnreadNotifications() {
+  const notificationsRef = ref(database, `PARSEIT/community/notifications/`);
+  
+  await get(notificationsRef).then((snapshot) => {
+    if (snapshot.exists()) {
+      const notifications = snapshot.val();
+      let unreadCount = 0;
+
+      // Count unread notifications for the current user
+      Object.keys(notifications).forEach((notificationId) => {
+        const notification = notifications[notificationId];
+        if (notification.to === studentId && !notification.read) {
+          unreadCount++;
+        }
+      });
+
+      // Update the notification count badge
+      updateNotificationCount(unreadCount);
+    } else {
+      updateNotificationCount(0); // No notifications
+    }
+  }).catch((error) => {
+    console.error('Error fetching notifications:', error);
+  });
+}
+
+// Call the fetch function initially and periodically (e.g., every 10 seconds)
+fetchUnreadNotifications();
+setInterval(fetchUnreadNotifications, 10000);
+
+
 function formatTimeAgo(timestamp) {
   const now = new Date();
   const timeDifference = now - new Date(timestamp);
