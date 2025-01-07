@@ -86,11 +86,24 @@ function toggleSection(buttonId, sectionId) {
 function setupToggleEvent(buttonId, sectionId) {
   document.getElementById(buttonId).addEventListener('click', () => {
     toggleSection(buttonId, sectionId);
+    displayNotification();
   });
 }
 setupToggleEvent('notification_btn', 'notif_page_section');
 setupToggleEvent('community_home_btn', 'community_home_section');
 
+async function displayNotification () {
+  const postsRef = ref(database, `PARSEIT/community/notifications/`);
+
+  await get(postsRef).then((snapshot) => {
+    if (snapshot.exists()) {
+      const notification = snapshot.val();
+      Object.keys(notification).forEach((notificationsId) => {
+        console.log(notificationsId);
+      })
+    }
+  })
+}
 //to get display the username
 const username = localStorage.getItem("student_username");
 if (username) {

@@ -87,38 +87,72 @@ document.getElementById("answer_btn").addEventListener("click", function () {
   });
   
   // The function to post a comment (answer) to the correct post in Firebase
-  function postAnswer(student_id, username, content, postId) {
-    const answer_id = Date.now().toString();
-  
-    console.log("Active post ID:", postId);
-  
-    // Adding the answer to the correct post's answers
-    update(ref(database, `PARSEIT/community/posts/${postId}/answers/${answer_id}`), {
-      student_id: student_id,
-      content: content,
-      username: username,
-      time: Number(getCurrentTime()),
+ function postAnswer(student_id, username, content, postId) {
+  const answer_id = Date.now().toString();
+  const timestamp = Number(getCurrentTime());
+  //const student_id = localStorage.getItem("user-parser");
+  //console.log("Active post ID:", postId);
+
+  // Adding the answer to the correct post's answers
+  update(ref(database, `PARSEIT/community/posts/${postId}/answers/${answer_id}`), {
+    student_id: student_id,
+    content: content,
+    username: username,
+    time: timestamp,
+  })
+    .then(() => {
+      console.log("Answer posted successfully");
+      loadAnswers(postId); // Reload the answers for the active post
+
+      // Fetch the post details to get the author's ID
+      get(ref(database, `PARSEIT/community/posts/${postId}`))
+        .then((snapshot) => {
+          if (snapshot.exists()) {
+            const post = snapshot.val();
+            const postAuthorId = post.student_id;
+
+            // Avoid sending a notification to the answerer themselves
+            if (postAuthorId !== student_id) {
+              const notification_id = Date.now().toString();
+              // const notificationRef = ref(database, `PARSEIT/community/notifications/${postAuthorId}/${notification_id}`);
+
+              // Add a notification for the post author
+              
+                update(ref(database, `PARSEIT/community/notifications/${notification_id}`), {
+                  post_id: postId,
+                  message: `${username} answered your post.`,
+                  timestamp: timestamp,
+                  to: postAuthorId,
+                  from: student_id,
+                  read: false,
+                  }).then(() => {
+                    console.log("Notification sent successfully");
+                  })
+                  .catch((error) => {
+                    console.error("Error sending notification:", error);
+                  });
+            }
+          } else {
+            console.warn("Post not found. Notification not sent.");
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching post details:", error);
+        });
     })
-      .then(() => {
-        console.log("Answer posted successfully");
-        loadAnswers(postId);  // Reload the answers for the active post
-      })
-      .catch((error) => {
-        console.error("Error posting answer:", error);
-        alert("Failed to post answer. Please try again.");
-      });
-  }
+    .catch((error) => {
+      console.error("Error posting answer:", error);
+      alert("Failed to post answer. Please try again.");
+    });
+}
   
   // Define getCurrentTime before postAnswer
   function getCurrentTime() {
     return Date.now(); // Numeric timestamp for storage
   }
   
-  
   // Function to load answers for the specific post
   function loadAnswers(postId) {
-    console.log("Post ID:", postId);
-    console.log("Loading answers for post ID:", postId);
     const answersRef = ref(database, `PARSEIT/community/posts/${postId}/answers/`);
   
     get(answersRef)
