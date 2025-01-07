@@ -29,23 +29,7 @@ const studentId = localStorage.getItem("user-parser");
 const overlay = document.getElementById("query-overlay");
 const queryModal = document.getElementById("queryModal");
 //let activeFeed = null;
-const profileStudentRef = ref(database, `PARSEIT/administration/students/${studentId}/`);
-get(profileStudentRef).then((profileStudentSnapshot) => {
-  if (profileStudentSnapshot.exists()) {
-    document.getElementById('active-profile-pic').src = `images/profiles/${profileStudentSnapshot.val().profile}`;
-  }
-  else {
-    const profileTeacherRef = ref(database, `PARSEIT/administration/teachers/${studentId}/`);
-    get(profileTeacherRef).then((profileteachersSnapshot) => {
-      if (profileteachersSnapshot.exists()) {
-        document.getElementById('active-profile-pic').src = `images/profiles/${profileStudentSnapshot.val().profile}`;
-      }
-      else {
-        document.getElementById('active-profile-pic').src = `images/profiles/default_profile.png`;
-      }
-    });
-  }
-});
+
 
 document.getElementById("community_home_btn").addEventListener("click", function () {
   location.reload();
