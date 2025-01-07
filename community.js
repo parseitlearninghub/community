@@ -73,19 +73,25 @@ setupToggleEvent('community_home_btn', 'community_home_section');
 async function displayNotification() {
   const notificationsRef = ref(database, `PARSEIT/community/notifications/`);
   const notificationsWrapper = document.querySelector('.notifications_wrapper'); 
+  
   // Clear existing notifications
   notificationsWrapper.innerHTML = '';
 
   await get(notificationsRef).then((snapshot) => {
     if (snapshot.exists()) {
       const notifications = snapshot.val();
+      let unreadCount = 0;
 
-      // Filter notifications for the current user
       Object.keys(notifications).forEach((notificationId) => {
         const notification = notifications[notificationId];
 
         // Check if the notification is for the current user
         if (notification.to === studentId) {
+          // Increment unread count
+          if (!notification.read) {
+            unreadCount++;
+          }
+
           // Create a notification element
           const notificationDiv = document.createElement('div');
           notificationDiv.classList.add('notification_div');
@@ -94,22 +100,40 @@ async function displayNotification() {
             <span class="notif-time">${formatTimeAgo(notification.timestamp)}</span>
           `;
 
+          // Add event listener to mark as read and redirect
           notificationDiv.addEventListener('click', () => {
-            // Redirect to the answer modal with the postId or relevant identifier
-            console.log("Redirecting to:", `answers.html?postId=${notification.post_id}`);
-            window.location.href = `answers.html?postId=${notification.post_id}`; 
+            // Mark as read in the database
+            update(ref(database, `PARSEIT/community/notifications/${notificationId}`), {
+              ...notification,
+              read: true,
+            }).then(() => {
+              console.log('Notification marked as read');
+              // Update the notification count
+              fetchUnreadNotifications();
+            }).catch((error) => {
+              console.error('Error marking notification as read:', error);
+            });
+
+            // Redirect to the answer modal with the postId
+            if (notification.post_id) {
+              window.location.href = `answers.html?postId=${notification.post_id}`;
+            }
           });
 
           // Append to notifications wrapper
           notificationsWrapper.appendChild(notificationDiv);
         }
       });
+
+      // Update the notification count badge
+      updateNotificationCount(unreadCount);
     } else {
       // If no notifications, show a message
       notificationsWrapper.innerHTML = '<p>No notifications yet.</p>';
+      updateNotificationCount(0); // Reset count
     }
   }).catch((error) => {
-    console.error("Error fetching notifications:", error);
+    console.error('Error fetching notifications:', error);
   });
 }
 
@@ -128,13 +152,12 @@ function updateNotificationCount(count) {
 // Example: Fetch unread notifications from the database
 async function fetchUnreadNotifications() {
   const notificationsRef = ref(database, `PARSEIT/community/notifications/`);
-  
+
   await get(notificationsRef).then((snapshot) => {
     if (snapshot.exists()) {
       const notifications = snapshot.val();
       let unreadCount = 0;
 
-      // Count unread notifications for the current user
       Object.keys(notifications).forEach((notificationId) => {
         const notification = notifications[notificationId];
         if (notification.to === studentId && !notification.read) {
@@ -142,13 +165,12 @@ async function fetchUnreadNotifications() {
         }
       });
 
-      // Update the notification count badge
       updateNotificationCount(unreadCount);
     } else {
       updateNotificationCount(0); // No notifications
     }
   }).catch((error) => {
-    console.error('Error fetching notifications:', error);
+    console.error('Error fetching unread notifications:', error);
   });
 }
 
