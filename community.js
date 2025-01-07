@@ -94,6 +94,11 @@ async function displayNotification() {
             <span class="notif-time">${formatTimeAgo(notification.timestamp)}</span>
           `;
 
+          notificationDiv.addEventListener('click', () => {
+            // Redirect to the answer modal with the postId or relevant identifier
+            window.location.href = `answers.html?postId=${notification.postId}`; 
+          });
+
           // Append to notifications wrapper
           notificationsWrapper.appendChild(notificationDiv);
         }
@@ -130,7 +135,7 @@ function formatTimeAgo(timestamp) {
   } else if (hours > 0) {
     return `${hours} hr${hours > 1 ? 's' : ''} ago`;
   } else if (minutes > 0) {
-    return `${minutes} m${minutes > 1 ? 's' : ''} ago`;
+    return `${minutes} min${minutes > 1 ? 's' : ''} ago`;
   } else {
     return `${seconds} sec${seconds > 1 ? 's' : ''} ago`;
   }
