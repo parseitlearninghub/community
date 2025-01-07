@@ -129,18 +129,7 @@ async function displayNotification() {
   });
 }
 
-// Helper function to format timestamps
-function formatTime(timestamp) {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diff = Math.floor((now - date) / (1000 * 60 * 60)); // Difference in hours
-
-  if (diff < 24) {
-    return `${diff} hrs ago`;
-  } else {
-    return `${Math.floor(diff / 24)} d ago`;
-  }
-}
+// Helper function to format timesta
 
 
 //to get display the username
