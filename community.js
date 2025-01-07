@@ -94,62 +94,54 @@ setupToggleEvent('community_home_btn', 'community_home_section');
 
 async function displayNotification() {
   const notificationsRef = ref(database, `PARSEIT/community/notifications/`);
-  const notificationsWrapper = document.querySelector('.notifications_wrapper');
-  console.log("Displaying notifications...");
-  // Clear any existing notifications
+
+  // Clear existing notifications
   notificationsWrapper.innerHTML = '';
 
-  try {
-    const snapshot = await get(notificationsRef);
-
+  await get(notificationsRef).then((snapshot) => {
     if (snapshot.exists()) {
       const notifications = snapshot.val();
 
-      // Iterate through the notifications
+      // Filter notifications for the current user
       Object.keys(notifications).forEach((notificationId) => {
         const notification = notifications[notificationId];
-        const { message, timestamp, read } = notification;
 
-        // Format the timestamp into a human-readable string
-        const timeAgo = getTimeAgo(timestamp);
+        // Check if the notification is for the current user
+        if (notification.to === studentId) {
+          // Create a notification element
+          const notificationDiv = document.createElement('div');
+          notificationDiv.classList.add('notification_div');
+          notificationDiv.innerHTML = `
+            ${notification.message}
+            <span class="notif-time">${formatTime(notification.timestamp)}</span>
+          `;
 
-        // Create the notification HTML dynamically
-        const notificationDiv = document.createElement('div');
-        notificationDiv.classList.add('notification_div');
-        notificationDiv.classList.add(read ? 'read' : 'unread'); // Add class based on the read state
-
-        notificationDiv.innerHTML = `
-          ${message}
-          <span class="notif-time">${timeAgo}</span>
-        `;
-
-        notificationsWrapper.appendChild(notificationDiv);
+          // Append to notifications wrapper
+          notificationsWrapper.appendChild(notificationDiv);
+        }
       });
     } else {
-      // Display a message when there are no notifications
-      notificationsWrapper.innerHTML = '<div class="empty-message">No notifications found.</div>';
+      // If no notifications, show a message
+      notificationsWrapper.innerHTML = '<p>No notifications yet.</p>';
     }
-  } catch (error) {
-    console.error('Error fetching notifications:', error);
-    notificationsWrapper.innerHTML = '<div class="empty-message">Error loading notifications.</div>';
+  }).catch((error) => {
+    console.error("Error fetching notifications:", error);
+  });
+}
+
+// Helper function to format timestamps
+function formatTime(timestamp) {
+  const date = new Date(timestamp);
+  const now = new Date();
+  const diff = Math.floor((now - date) / (1000 * 60 * 60)); // Difference in hours
+
+  if (diff < 24) {
+    return `${diff} hrs ago`;
+  } else {
+    return `${Math.floor(diff / 24)} d ago`;
   }
 }
 
-// Helper function to calculate "time ago"
-function getTimeAgo(timestamp) {
-  const now = Date.now();
-  const diff = now - timestamp;
-
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const days = Math.floor(hours / 24);
-
-  if (days > 0) return `${days}d ago`;
-  if (hours > 0) return `${hours}hrs ago`;
-  if (minutes > 0) return `${minutes}min ago`;
-  return `${seconds}s ago`;
-}
 
 //to get display the username
 const username = localStorage.getItem("student_username");
