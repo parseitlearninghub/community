@@ -94,7 +94,7 @@ setupToggleEvent('community_home_btn', 'community_home_section');
 
 async function displayNotification() {
   const notificationsRef = ref(database, `PARSEIT/community/notifications/`);
-
+  const notificationsWrapper = document.querySelector('.notifications_wrapper'); 
   // Clear existing notifications
   notificationsWrapper.innerHTML = '';
 
