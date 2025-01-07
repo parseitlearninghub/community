@@ -129,7 +129,8 @@ async function displayNotification() {
   });
 }
 
-// Helper function to format timesta
+// Helper function to format timestamps
+
 
 
 //to get display the username
