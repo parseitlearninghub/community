@@ -292,7 +292,7 @@ async function loadPosts() {
       for (const [postId, post] of postArray) {
         const menuId = `menu-${postId}`;
         const editId = `edit-${postId}`;
-        const reportId = `report-${postId}`;
+        const hideId = `hide-${postId}`;
         const answerId = `answer-${postId}`;
 
         let currentProfile = 'default_profile.png';
@@ -318,7 +318,7 @@ async function loadPosts() {
 
         const postElement = document.createElement("div");
         postElement.classList.add("feed");
-        postElement.dataset.postId = postId;  // Add the postId as a data attribute
+        postElement.dataset.postId = postId; // Add the postId as a data attribute
 
         postElement.innerHTML = `
           <div class="user">
@@ -335,7 +335,8 @@ async function loadPosts() {
                 ${post.username === currentUsername ? 
                   `<div class="menu-item" id="${editId}">
                   <img class="" src="images/edit.png" alt="">Edit</div>` : 
-                  `<div class="menu-item" id="${reportId}"><img class="" src="images/report.png" alt="">Report</div>`}
+                  `<div class="menu-item" id="${hideId}">
+                  <img class="" src="images/hidden.png" alt="">Hide</div>`}
               </div>
             </div>
           </div>
@@ -353,11 +354,13 @@ async function loadPosts() {
 
         document.getElementById(menuId).addEventListener("click", () => toggleMenu(postElement));
 
-        // Add event listeners for Edit, Report, and Answer actions
+        // Add event listeners for Edit, Hide, and Answer actions
         if (post.username === currentUsername) {
           document.getElementById(editId).addEventListener("click", () => editPost(postId));
         } else {
-          document.getElementById(reportId).addEventListener("click", () => reportPost(postId));
+          document.getElementById(hideId).addEventListener("click", () => {
+            postElement.style.display = "none"; // Hides the post
+          });
         }
 
         // Add event listener to open the modal on "Answer"
@@ -374,6 +377,7 @@ async function loadPosts() {
     alert("Error loading posts:", error);
   }
 }
+
 
 
 
@@ -557,17 +561,17 @@ function editPost(postId) {
 }
 
 // Report Post Functionality
-function reportPost(postId) {
-  if (confirm("Are you sure you want to report this post?")) {
-    update(ref(database, `PARSEIT/community/posts/${postId}`), {
-      reported: true, // Add a 'reported' flag
-    })
-      .then(() => {
-        alert("Post reported successfully.");
-      })
-      .catch((error) => {
-        console.error("Error reporting post:", error);
-        alert("Failed to report the post.");
-      });
-  }
-}
+// function reportPost(postId) {
+//   if (confirm("Are you sure you want to report this post?")) {
+//     update(ref(database, `PARSEIT/community/posts/${postId}`), {
+//       reported: true, // Add a 'reported' flag
+//     })
+//       .then(() => {
+//         alert("Post reported successfully.");
+//       })
+//       .catch((error) => {
+//         console.error("Error reporting post:", error);
+//         alert("Failed to report the post.");
+//       });
+//   }
+// }
